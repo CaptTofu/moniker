@@ -14,7 +14,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 from uuid import uuid4
-from sqlalchemy import (Column, DateTime, Boolean, String, Integer, ForeignKey,
+from sqlalchemy import (Column, DateTime, Boolean, String, Text, Integer, ForeignKey,
                         Enum)
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import relationship, backref, object_mapper
@@ -109,7 +109,7 @@ RECORD_TYPES = ['A', 'AAAA', 'CNAME', 'MX', 'SRV', 'TXT', 'NS']
 class Server(Base):
     __tablename__ = 'servers'
 
-    name = Column(String(36), nullable=False, unique=True)
+    name = Column(String(255), nullable=False, unique=True)
     ipv4 = Column(Inet, nullable=False, unique=True)
     ipv6 = Column(Inet, default=None, unique=True)
 
@@ -118,7 +118,7 @@ class Domain(Base):
     __tablename__ = 'domains'
 
     tenant_id = Column(String(36), nullable=False)
-    name = Column(String(36), nullable=False, unique=True)
+    name = Column(String(255), nullable=False, unique=True)
     email = Column(String(36), nullable=False)
 
     ttl = Column(Integer, default=3600, nullable=False)
@@ -154,8 +154,8 @@ class Record(Base):
     __tablename__ = 'records'
 
     type = Column(Enum(name='record_types', *RECORD_TYPES), nullable=False)
-    name = Column(String(36), nullable=False)
-    data = Column(String(36), nullable=False)
+    name = Column(String(255), nullable=False)
+    data = Column(Text, nullable=False)
     priority = Column(Integer, default=None)
     ttl = Column(Integer, default=3600, nullable=False)
 
