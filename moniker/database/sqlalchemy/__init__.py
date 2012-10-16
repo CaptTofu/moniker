@@ -24,10 +24,6 @@ from moniker.database.sqlalchemy.session import get_session
 
 LOG = logging.getLogger(__name__)
 
-#cfg.CONF.register_opts([
-#    cfg.StrOpt('sql-connection', default='sqlite:///test.sqlite',
-#               help='The database connection string'),
-#])
 cfg.CONF.register_opts([
     cfg.StrOpt('sql-connection', default='mysql://dns:dns@localhost/moniker',
                help='The database connection string'),

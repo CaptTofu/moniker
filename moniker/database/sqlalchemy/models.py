@@ -1,6 +1,8 @@
+# Copyright 2012 Hewlett-Packard Development Company, L.P. 
 # Copyright 2012 Managed I.T.
 #
 # Author: Kiall Mac Innes <kiall@managedit.ie>
+# Modified: Patrick Galbraith <patg@hp.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
