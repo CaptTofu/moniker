@@ -16,7 +16,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 from uuid import uuid4
-from sqlalchemy import (Column, DateTime, Boolean, String, Text, Integer, ForeignKey,
+from sqlalchemy import (Column, DateTime, String, Text, Integer, ForeignKey,
                         Enum)
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import relationship, backref, object_mapper
@@ -65,6 +65,7 @@ class Base(object):
             session = get_session()
 
         session.delete(self)
+        session.flush()
 
     def __setitem__(self, key, value):
         setattr(self, key, value)
@@ -113,7 +114,7 @@ class Server(Base):
 
     name = Column(String(255), nullable=False, unique=True)
     ipv4 = Column(Inet, nullable=False, unique=True)
-    ipv6 = Column(Inet, default=None, unique=True)
+    ipv6 = Column(Inet, default=None, nullable=True, unique=True)
 
 
 class Domain(Base):

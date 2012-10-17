@@ -13,20 +13,11 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-import flask
 from moniker.openstack.common import cfg
-from moniker.openstack.common import log as logging
-
-LOG = logging.getLogger(__name__)
-
-blueprint = flask.Blueprint('debug', __name__)
+from moniker.central import service as central_service
+from moniker.tests import TestCase
 
 
-@blueprint.route('/config', methods=['GET'])
-def list_config():
-    return flask.jsonify(cfg.CONF)
-
-
-@blueprint.route('/context', methods=['GET'])
-def list_config():
-    return flask.jsonify(flask.request.context.to_dict())
+class CentralTestCase(TestCase):
+    def get_central_service(self):
+        return central_service.Service()

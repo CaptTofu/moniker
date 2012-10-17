@@ -18,7 +18,6 @@ import subprocess
 from jinja2 import Template
 from moniker.openstack.common import cfg
 from moniker.openstack.common import log as logging
-from moniker.openstack.common import rpc
 from moniker.openstack.common.rpc import service as rpc_service
 from moniker.openstack.common.context import get_admin_context
 from moniker.central import api as central_api
@@ -29,14 +28,18 @@ cfg.CONF.register_opts([
     cfg.StrOpt('rndc-path', default='/usr/sbin/rndc', help='RNDC Path'),
     cfg.StrOpt('rndc-host', default='127.0.0.1', help='RNDC Host'),
     cfg.IntOpt('rndc-port', default=953, help='RNDC Port'),
-    cfg.StrOpt('rndc-config-file', default='/etc/rndc.conf',
-               help='RNDC Config File'),
+    cfg.StrOpt('rndc-config-file', default=None, help='RNDC Config File'),
     cfg.StrOpt('rndc-key-file', default=None, help='RNDC Key File'),
 ])
 
 
 class Service(rpc_service.Service):
     def __init__(self, *args, **kwargs):
+        kwargs.update(
+            host=cfg.CONF.host,
+            topic=cfg.CONF.agent_topic
+        )
+
         super(Service, self).__init__(*args, **kwargs)
 
         # TODO: This is a hack to ensure the data dir is 100% up to date
@@ -86,8 +89,14 @@ class Service(rpc_service.Service):
         template_path = os.path.join(os.path.abspath(
             cfg.CONF.templates_path), 'bind9-config.jinja2')
 
-        output_path = os.path.join(os.path.abspath(cfg.CONF.state_path),
-                                   'bind9', 'zones.config')
+        output_folder = os.path.join(os.path.abspath(cfg.CONF.state_path),
+                                     'bind9')
+
+        # Create the output folder tree if necessary
+        if not os.path.exists(output_folder):
+            os.makedirs(output_folder)
+
+        output_path = os.path.join(output_folder, 'zones.config')
 
         self._render_template(template_path, output_path, domains=domains,
                               state_path=os.path.abspath(cfg.CONF.state_path))
@@ -122,15 +131,19 @@ class Service(rpc_service.Service):
         rndc_call = [
             'sudo',
             cfg.CONF.rndc_path,
-            '-c', cfg.CONF.rndc_config_file,
             '-s', cfg.CONF.rndc_host,
             '-p', str(cfg.CONF.rndc_port),
         ]
+
+        if cfg.CONF.rndc_config_file:
+            rndc_call.extend(['-c', cfg.CONF.rndc_config_file])
 
         if cfg.CONF.rndc_key_file:
             rndc_call.extend(['-k', c.cfg.CONF.rndc_key_file])
 
         rndc_call.extend(['reload', domain['name']])
+
+        LOG.warn(rndc_call)
 
         subprocess.call(rndc_call)
 

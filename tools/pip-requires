@@ -6,6 +6,10 @@ jsonschema>=0.6
 ipaddr
 lxml
 repoze.lru
+setuptools-git>=0.4
 
 # Needed for Keystone Middleware
 https://launchpad.net/keystone/folsom/2012.2/+download/keystone-2012.2.tar.gz#egg=keystone
+
+# Optional Stuff that is used by default
+kombu

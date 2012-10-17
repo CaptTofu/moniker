@@ -17,10 +17,8 @@ logging_context_format_string = %(asctime)s %(levelname)s %(name)s [%(request_id
 #
 control_exchange = moniker
 
-[keystone_authtoken]
-auth_host = 127.0.0.1
-auth_port = 35357
-auth_protocol = http
-admin_tenant_name = admin
-admin_user = admin
-admin_password = password
+#
+allowed_rpc_exception_modules = moniker.exceptions, moniker.openstack.common.exception
+
+#
+auth_strategy = noauth
