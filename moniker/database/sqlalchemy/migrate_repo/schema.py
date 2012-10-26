@@ -24,7 +24,7 @@ import sqlalchemy.types
 from sqlalchemy.schema import MetaData
 # from sqlalchemy import (DateTime, Boolean, String, Text, Integer, Enum)
 from moniker.openstack.common import log as logging
-from moniker.database.sqlalchemy.types import UUID, Inet
+import moniker.database.sqlalchemy.types # import UUID, Inet
 
 logger = logging.getLogger('moniker.database.migrate_repo.schema')
 
@@ -39,7 +39,9 @@ Text = lambda: sqlalchemy.types.Text(
     unicode_error=None, _warn_on_bytestring=False)
 
 
-Enum = lambda: sqlalchemy.types.Enum()
+RECORD_TYPES = ['A', 'AAAA', 'CNAME', 'MX', 'SRV', 'TXT', 'NS']
+# headaches getting this to work
+Enum = sqlalchemy.types.Enum(name=None, *RECORD_TYPES)
 
 
 Boolean = lambda: sqlalchemy.types.Boolean(create_constraint=True, name=None)
@@ -57,7 +59,6 @@ UUID = lambda: moniker.database.sqlalchemy.types.UUID()
 Inet = lambda: moniker.database.sqlalchemy.types.Inet()
 
 
-RECORD_TYPES = ['A', 'AAAA', 'CNAME', 'MX', 'SRV', 'TXT', 'NS']
 
 
 def create_tables(tables):
