@@ -43,6 +43,7 @@ setup(
     dependency_links=dependency_links,
     scripts=[
         'bin/moniker-agent-bind9',
+        'bin/moniker-agent-mysql-bind9',
         'bin/moniker-api',
         'bin/moniker-central',
     ],
