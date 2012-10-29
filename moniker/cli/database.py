@@ -19,13 +19,13 @@ from migrate.versioning import api as versioning_api
 from cliff.command import Command
 from moniker.openstack.common import log as logging
 from moniker.openstack.common import cfg
-import moniker.database  # Import for database_connection cfg def.
+from moniker import storage  # Import for database_connection cfg def.
+from moniker.cli import utils
 
 LOG = logging.getLogger(__name__)
 
-URL = cfg.CONF.database_connection
 REPOSITORY = os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
-                                          'database', 'sqlalchemy',
+                                          'storage', 'impl_sqlalchemy',
                                           'migrate_repo'))
 
 
@@ -33,12 +33,19 @@ class InitCommand(Command):
     "Init database"
 
     def take_action(self, parsed_args):
+        utils.read_config('moniker-central')
+
+        url = cfg.CONF.database_connection
+
+        if not os.path.exists(REPOSITORY):
+            raise Exception('Migration Respository Not Found')
+
         try:
             LOG.info('Attempting to initialize database')
-            versioning_api.version_control(url=URL, repository=REPOSITORY)
-            LOG.info('Database initialize sucessfully')
+            versioning_api.version_control(url=url, repository=REPOSITORY)
+            LOG.info('Database initialized sucessfully')
         except DatabaseAlreadyControlledError:
-            LOG.error('Database already initialized')
+            raise Exception('Database already initialized')
 
 
 class SyncCommand(Command):
@@ -46,10 +53,14 @@ class SyncCommand(Command):
 
     def take_action(self, parsed_args):
         # TODO: Support specifying version
-        try:
-            LOG.info('Attempting to synchronize database')
-            versioning_api.upgrade(url=URL, repository=REPOSITORY,
-                                   version=None)
-            LOG.info('Database synchronized sucessfully')
-        except DatabaseAlreadyControlledError:
-            LOG.error('Database synchronize failed')
+        utils.read_config('moniker-central')
+
+        url = cfg.CONF.database_connection
+
+        if not os.path.exists(REPOSITORY):
+            raise Exception('Migration Respository Not Found')
+
+        LOG.info('Attempting to synchronize database')
+        versioning_api.upgrade(url=url, repository=REPOSITORY,
+                               version=None)
+        LOG.info('Database synchronized sucessfully')
